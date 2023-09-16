@@ -82,6 +82,7 @@ class MakarovChain:
 
 
 class ConrinRnd:
+    e = 2.71828182845905
     xMin, xMax = -1, 1
     n = 0
     f = []
@@ -91,7 +92,7 @@ class ConrinRnd:
         self.xMin, self.xMax = xMin, xMax
         self.n = n
         self.f = [0]*self.n
-        self.dx = (self.xMax - self.xMin) / self.n
+        self.dx = int((self.xMax - self.xMin) / self.n)
 
     # индексатор по массиву частот
     def GetValueFromArr(self, index):
@@ -99,19 +100,25 @@ class ConrinRnd:
         return self.f[index] if index >= 0 and index < self.n else self.f[0]
 
     def GeneralLogNormalValue(self, _b, _c):
-        t = 0
+        t = 0.0
         m = 12
         for i in range(m):
             t += random.random()
         t -= m/2
-        x = math.exp(_c * t + _b)
+
+        x  = pow(self.e, _c*t+ _b)
         self.CountFreqs(x)
         return x
 
     def CountFreqs(self, _x):
+        # print(_x)
         for i in range(self.n):
-            if ((_x > self.xMin + i*self.dx) and (_x < self.xMin + (i+1) * self.dx)):
+            # print(f'i={i} vor ={_x>self.xMin + i*self.dx} and {self.xMin + (i+1) * self.dx}')
+            if ((_x > self.xMin + i*self.dx) and (_x < self.xMax + (i+1) * self.dx)):
+                
+                
                 self.f[i] += 1
+                # print(f'_x = {_x} i={i} f={self.f[i]}')
                 break
 
 
@@ -125,7 +132,7 @@ if __name__ == '__main__':
     #     print(dRnd.GenValue(), end="")
 
     # print(f"\n{dRnd.GetFreqs()}")
-
+    print(math.e)
     xMin = -24
     xMax = 2
     n = 15
