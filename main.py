@@ -1,4 +1,5 @@
 import random
+import math
 
 
 class DescrRnd:
@@ -80,13 +81,68 @@ class MakarovChain:
         return buf
 
 
+class ConrinRnd:
+    xMin, xMax = -1, 1
+    n = 0
+    f = []
+    dx = 0
+
+    def __init__(self, xMin=-5, xMax=5, n=10):
+        self.xMin, self.xMax = xMin, xMax
+        self.n = n
+        self.f = [0]*self.n
+        self.dx = (self.xMax - self.xMin) / self.n
+
+    # индексатор по массиву частот
+    def GetValueFromArr(self, index):
+
+        return self.f[index] if index >= 0 and index < self.n else self.f[0]
+
+    def GeneralLogNormalValue(self, _b, _c):
+        t = 0
+        m = 12
+        for i in range(m):
+            t += random.random()
+        t -= m/2
+        x = math.exp(_c * t + _b)
+        self.CountFreqs(x)
+        return x
+
+    def CountFreqs(self, _x):
+        for i in range(self.n):
+            if ((_x > self.xMin + i*self.dx) and (_x < self.xMin + (i+1) * self.dx)):
+                self.f[i] += 1
+                break
+
+
 if __name__ == '__main__':
 
-    dRnd = DescrRnd()
+    # dRnd = ConrinRnd()
 
-    n = int(input("Введите число генерируемых значений: "))
-    print('последовательность значений:')
-    for i in range(n):
-        print(dRnd.GenValue(), end="")
+    # n = int(input("Введите число генерируемых значений: "))
+    # print('последовательность значений:')
+    # for i in range(n):
+    #     print(dRnd.GenValue(), end="")
 
-    print(f"\n{dRnd.GetFreqs()}")
+    # print(f"\n{dRnd.GetFreqs()}")
+
+    xMin = -24
+    xMax = 2
+    n = 15
+    cRnd = ConrinRnd(xMin, xMax, n)
+    m = int(input("Введите число генерируемых значений:\n"))
+
+    b = 1
+    c = 0.5
+    buf = ""
+
+    for i in range(m):
+        buf += f'{i}. {cRnd.GeneralLogNormalValue(b,c)}\n'
+
+    print(f'Последовательность значений:\n{buf}')
+    f = []
+    # for i in range(n):
+    #     f.append(cRnd.f[i])
+    #     print(f'Интервал {i}: {f[i]}')
+    print(cRnd.f)
+    # DrawGistogram(f)
