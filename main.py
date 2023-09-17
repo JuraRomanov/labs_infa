@@ -82,74 +82,65 @@ class MakarovChain:
 
 
 class ConrinRnd:
-    e = 2.71828182845905
     xMin, xMax = -1, 1
-    n = 0
     f = []
-    dx = 0
+    data = []
 
-    def __init__(self, xMin=-5, xMax=5, n=10):
-        self.xMin, self.xMax = xMin, xMax
-        self.n = n
-        self.f = [0]*self.n
-        self.dx = int((self.xMax - self.xMin) / self.n)
+    def __init__(self, _xMin=-8, _xMax=1, _numSamples=10):
+        self.xMin, self.xMax = _xMin, _xMax
+        self.numSamples = _numSamples
+        self.f = [0]*self.numSamples
 
-    # индексатор по массиву частот
-    def GetValueFromArr(self, index):
+    def GenKoshi(self, _a, _numSamples):
+        self.data = []
+        buf = ""
+        for _ in range(_numSamples):
+            u1 = random.random()
+            x = self.xMin + (self.xMax - self.xMin) * u1
+            u2 = random.random()
+            # Функция плотности распределения Коши
+            y = _a * (1 / (math.pi * _a * (1 + ((x - _a) / _a) ** 2)))
+            if u2 < y:
+                self.data.append(x)
+            buf += f"{_}: {x}\n"
 
-        return self.f[index] if index >= 0 and index < self.n else self.f[0]
+        return buf
 
-    def GeneralLogNormalValue(self, _b, _c):
-        t = 0.0
-        m = 12
-        for i in range(m):
-            t += random.random()
-        t -= m/2
+    def CountFreqs(self):
 
-        x  = pow(self.e, _c*t+ _b)
-        self.CountFreqs(x)
-        return x
+        # Фильтрация значений, чтобы они попадали в интервал (xmin, xmax)
+        filtered_data = [x for x in self.data if self.xMin <= x <= self.xMax]
+        print("Набор значений НСВ с распределением Коши:")
+        for index, value in enumerate(filtered_data):
+            print(f'{index+1}:{value}')
 
-    def CountFreqs(self, _x):
-        # print(_x)
-        for i in range(self.n):
-            # print(f'i={i} vor ={_x>self.xMin + i*self.dx} and {self.xMin + (i+1) * self.dx}')
-            if ((_x > self.xMin + i*self.dx) and (_x < self.xMax + (i+1) * self.dx)):
-                
-                
-                self.f[i] += 1
-                # print(f'_x = {_x} i={i} f={self.f[i]}')
-                break
+        # Разбивка интервала (xmin, xmax) на бины и подсчет частот попадания значений
+        num_bins = 10
+        bin_width = (self.xMax - self.xMin) / num_bins
+        hist = [0] * num_bins
+        for value in filtered_data:
+            bin_index = int((value - self.xMin) / bin_width)
+            hist[bin_index] += 1
+
+        # Вывод частот попадания в интервалы
+        for i in range(num_bins):
+            bin_start = self.xMin + i * bin_width
+            bin_end = bin_start + bin_width
+            print(f'Интервал ({bin_start:.2f}, {bin_end:.2f}): {hist[i]}')
 
 
 if __name__ == '__main__':
 
-    # dRnd = ConrinRnd()
+    a = 1.25
+    xMin = -8
+    xMax = 1
 
-    # n = int(input("Введите число генерируемых значений: "))
-    # print('последовательность значений:')
-    # for i in range(n):
-    #     print(dRnd.GenValue(), end="")
+    numSamples = int(input("Введите число генерируемых значений:\n"))
+    cRnd = ConrinRnd(xMin, xMax, numSamples)
 
-    # print(f"\n{dRnd.GetFreqs()}")
-    print(math.e)
-    xMin = -24
-    xMax = 2
-    n = 15
-    cRnd = ConrinRnd(xMin, xMax, n)
-    m = int(input("Введите число генерируемых значений:\n"))
-
-    b = 1
-    c = 0.5
+    loc = 0
+    scale = 1  # параметр масштаба
     buf = ""
 
-    for i in range(m):
-        buf += f'{i}. {cRnd.GeneralLogNormalValue(b,c)}\n'
-
-    print(f'Последовательность значений:\n{buf}')
-    f = []
-    # for i in range(n):
-    #     f.append(cRnd.f[i])
-    #     print(f'Интервал {i}: {f[i]}')
-    print(cRnd.f)
-    # DrawGistogram(f)
+    print(cRnd.GenKoshi(a, numSamples))
+    cRnd.CountFreqs()
